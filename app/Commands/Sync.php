@@ -30,6 +30,7 @@ class Sync extends Command
      */
     public function handle()
     {
+        $start = \Carbon\Carbon::now();
         $label = $this->choice(
             'Que faut-il synchroniser ?',
             app('conf')->getLabels()->toArray(),
@@ -41,7 +42,6 @@ class Sync extends Command
         $sync = app('conf')->get($label);
 
         $command = Terminal::timeout(0)->command($this->getCommand($sync, true));
-// dd($this->getCommand($sync, true));
         $result = $this->task("Analyse des fichiers à synchroniser", function () use ($command, &$response) {
             $response = $command->run();
             return $response->successful();
@@ -84,7 +84,15 @@ class Sync extends Command
                 // $bar->advance();
             });
             $bar->finish();
+
+            $elapsed = \Carbon\Carbon::now()->settings(['locale' => 'fr'])->diffForHumans($start, true);
+
+            $detail = sprintf('Durée : %s', $elapsed);
+            $this->notify("Synchronisation terminée", $detail);
+
+            $this->comment(sprintf('Synchronisation effectuée en %s', $elapsed));
         }
+
     }
 
     private function getCommand($sync, $dry = false)
