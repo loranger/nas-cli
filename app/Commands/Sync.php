@@ -90,6 +90,7 @@ class Sync extends Command
             $detail = sprintf('Durée : %s', $elapsed);
             $this->notify("Synchronisation terminée", $detail);
 
+            $this->newLine();
             $this->comment(sprintf('Synchronisation effectuée en %s', $elapsed));
         }
 
