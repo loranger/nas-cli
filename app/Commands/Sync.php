@@ -77,11 +77,10 @@ class Sync extends Command
             $bar->start();
             $command = Terminal::timeout(0)->command($this->getCommand($sync));
             $response = $command->run(function ($type, $buffer) use ($bar) {
-                if (preg_match('/(\d+)%\s+([a-zA-Z0-9.]+\/s)/mU', $buffer, $matches)) {
+                if (preg_match('/(\d+)%\s+([a-zA-Z0-9.,]+\/s)/mU', $buffer, $matches)) {
                     $bar->setMessage($matches[2]);
                     $bar->setProgress($matches[1]);
                 }
-                // $bar->advance();
             });
             $bar->finish();
 
