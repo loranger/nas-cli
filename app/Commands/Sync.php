@@ -2,9 +2,7 @@
 
 namespace App\Commands;
 
-use Illuminate\Console\Scheduling\Schedule;
 use LaravelZero\Framework\Commands\Command;
-use Symfony\Component\Process\Process;
 use TitasGailius\Terminal\Terminal;
 
 class Sync extends Command
@@ -25,8 +23,6 @@ class Sync extends Command
 
     /**
      * Execute the console command.
-     *
-     * @return mixed
      */
     public function handle()
     {
@@ -42,8 +38,9 @@ class Sync extends Command
         $sync = app('conf')->get($label);
 
         $command = Terminal::timeout(0)->command($this->getCommand($sync, true));
-        $result = $this->task("Analyse des fichiers à synchroniser", function () use ($command, &$response) {
+        $result = $this->task('Analyse des fichiers à synchroniser', function () use ($command, &$response) {
             $response = $command->run();
+
             return $response->successful();
         }, 'vérification...');
 
@@ -87,12 +84,11 @@ class Sync extends Command
             $elapsed = \Carbon\Carbon::now()->settings(['locale' => 'fr'])->diffForHumans($start, true);
 
             $detail = sprintf('Durée : %s', $elapsed);
-            $this->notify("Synchronisation terminée", $detail);
+            $this->notify('Synchronisation terminée', $detail);
 
             $this->newLine();
             $this->comment(sprintf('Synchronisation effectuée en %s', $elapsed));
         }
-
     }
 
     private function getCommand($sync, $dry = false)
@@ -101,13 +97,18 @@ class Sync extends Command
             return sprintf('--exclude "%s"', $item);
         });
 
-        return sprintf(
+        $command = sprintf(
             'rsync -ruv %s --iconv=utf-8-mac,utf-8 %s %s %s',
             $dry ? '--dry-run' : '--no-inc-recursive --info=progress2',
             $sync->from,
             $sync->to,
             $excludes->implode(' ')
         );
-    }
 
+        if ($this->getOutput()->isDebug()) {
+            $this->line(sprintf('Command: %s', $command));
+        }
+
+        return $command;
+    }
 }
