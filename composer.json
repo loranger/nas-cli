@@ -21,7 +21,7 @@
         "titasgailius/terminal": "^1.2"
     },
     "require-dev": {
-        "mockery/mockery": "^1.4.3",
+        "mockery/mockery": "^1",
         "pestphp/pest": "^2.0"
     },
     "autoload": {
